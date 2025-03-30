@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { Toast } from "./ui/toast";
 
 type ToastType = "success" | "error" | "info";
@@ -23,14 +23,20 @@ export function ToastProvider({ children }: ToastProviderProps) {
     duration?: number;
   } | null>(null);
 
-  const showToast = (message: string, type: ToastType = "info", duration?: number) => {
+  // Use useCallback to ensure the function reference remains stable
+  const showToast = useCallback((message: string, type: ToastType = "info", duration?: number) => {
     setToast({
       message,
       type,
       id: Date.now(), 
       duration,
     });
-  };
+  }, []);
+
+  // Close toast handler - also use useCallback
+  const handleClose = useCallback(() => {
+    setToast(null);
+  }, []);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -41,7 +47,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
           message={toast.message}
           type={toast.type}
           duration={toast.duration}
-          onClose={() => setToast(null)}
+          onClose={handleClose}
         />
       )}
     </ToastContext.Provider>

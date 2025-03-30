@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface ToastProps {
@@ -17,16 +17,30 @@ export function Toast({
   icon,
 }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Set up the timers only once when the component mounts or when duration changes
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Clear any existing timers first
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    
+    // Set new timers
+    timerRef.current = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(() => {
-        onClose && onClose();
-      }, 300); 
+      
+      closeTimerRef.current = setTimeout(() => {
+        if (onClose) onClose();
+      }, 300); // Animation duration
+      
     }, duration);
 
-    return () => clearTimeout(timer);
+    // Clean up timers on unmount
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
   }, [duration, onClose]);
 
   const typeStyles = {
@@ -53,6 +67,18 @@ export function Toast({
     ),
   };
 
+  // Handle manual close
+  const handleClose = () => {
+    // Clear existing timers
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    
+    setIsVisible(false);
+    closeTimerRef.current = setTimeout(() => {
+      if (onClose) onClose();
+    }, 300);
+  };
+
   return (
     <div
       className={twMerge(
@@ -74,12 +100,7 @@ export function Toast({
             <p className="text-sm font-medium">{message}</p>
           </div>
           <button
-            onClick={() => {
-              setIsVisible(false);
-              setTimeout(() => {
-                onClose && onClose();
-              }, 300);
-            }}
+            onClick={handleClose}
             className="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <span className="sr-only">Close</span>
@@ -92,4 +113,3 @@ export function Toast({
     </div>
   );
 }
-

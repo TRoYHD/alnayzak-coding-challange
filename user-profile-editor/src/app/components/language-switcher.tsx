@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Locale, locales } from "../i18n/config";
-import { createLocalizedUrl } from "../i18n/utils";
 
 export default function LanguageSwitcher() {
   const pathname = usePathname();
@@ -20,7 +19,17 @@ export default function LanguageSwitcher() {
   };
   
   const handleLocaleChange = (locale: Locale) => {
-    const newPath = createLocalizedUrl(pathname, locale);
+    // Extract the path after the current locale
+    let pathAfterLocale = pathname.replace(new RegExp(`^/${currentLocale}`), '');
+    
+    // If there's no path after locale or it's just '/', use empty string
+    if (pathAfterLocale === '' || pathAfterLocale === '/') {
+      pathAfterLocale = '';
+    }
+    
+    // Create the new localized URL
+    const newPath = `/${locale}${pathAfterLocale}`;
+    
     router.push(newPath);
     setIsOpen(false);
   };

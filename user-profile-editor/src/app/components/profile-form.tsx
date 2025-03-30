@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { useToast } from "./toast-provider";
 import { UserProfile, FormState } from "../types";
 import { createSchemas, ClientFormValues } from "../lib/schemas";
-import { Locale ,defaultLocale } from "../i18n/config";
+import { Locale, defaultLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import Image from "next/image";
 
@@ -21,10 +21,16 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData, locale = defaultLocale }: ProfileFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const initialRender = useRef(true);
+  const isFirstRender = useRef(true);
+  const lastValidatedFormData = useRef<any>(null);
   
-  const dictionary = getDictionary(locale);
-  const { clientValidationSchema } = createSchemas(locale);
+  // Get the dictionary only once during component initialization
+  const dictionaryRef = useRef(getDictionary(locale)); 
+  const dictionary = dictionaryRef.current;
+  
+  // Similar approach for the validation schema
+  const schemaRef = useRef(createSchemas(locale).clientValidationSchema);
+  const clientValidationSchema = schemaRef.current;
   
   const [formData, setFormData] = useState<Omit<UserProfile, "id">>({
     name: initialData.name,
@@ -43,8 +49,20 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
   
-  useEffect(() => {
+  // Validate only when touched fields really change, and compare against previous validation
+  const validateForm = () => {
     if (Object.keys(touched).length === 0) return;
+    
+    // Check if we're validating the same data as before
+    if (
+      lastValidatedFormData.current && 
+      JSON.stringify(lastValidatedFormData.current) === JSON.stringify(formData)
+    ) {
+      return; // Skip validation if data hasn't changed
+    }
+    
+    // Store current formData for future comparison
+    lastValidatedFormData.current = { ...formData };
     
     const validationResult = clientValidationSchema.safeParse(formData);
     if (!validationResult.success) {
@@ -52,11 +70,17 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     } else {
       setClientErrors({});
     }
-  }, [formData, touched, clientValidationSchema]);
+  };
   
+  // Manual validation when touched changes
   useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
+    validateForm();
+  }, [touched]); // Only depend on touched, not formData
+  
+  // Handle toast notifications for form state changes, but only after the first render
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
     }
     
@@ -65,7 +89,7 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     } else if (formState.message && formState.errors && Object.keys(formState.errors).length > 0) {
       showToast(formState.message || dictionary.notifications.error, "error");
     }
-  }, [formState, dictionary, showToast]);
+  }, [formState, showToast]); // Removed dictionary from dependencies
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,7 +99,13 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched(prev => {
+      // Only mark as touched if not already touched
+      if (prev[name]) return prev;
+      
+      const newTouched = { ...prev, [name]: true };
+      return newTouched;
+    });
   };
   
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -104,12 +134,14 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
+    // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, key) => {
       acc[key] = true;
       return acc;
     }, {} as Record<string, boolean>);
     setTouched(allTouched);
     
+    // Manually validate one more time before submission
     const validationResult = clientValidationSchema.safeParse(formData);
     if (!validationResult.success) {
       setClientErrors(validationResult.error.flatten().fieldErrors);

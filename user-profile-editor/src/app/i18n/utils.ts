@@ -1,62 +1,48 @@
-import { Locale, Dictionary } from './config';
+import { Locale, Dictionary, defaultLocale, locales } from './config';
+import enDictionary from './dictionaries/en';
+import arDictionary from './dictionaries/ar';
 
-const mockDictionary: Dictionary = {
-  page: {
-    title: 'User Profile',
-    subtitle: 'Update your personal information',
-  },
-  form: {
-    name: {
-      label: 'Name',
-      placeholder: 'Your name',
-    },
-    email: {
-      label: 'Email',
-      placeholder: 'your.email@example.com',
-    },
-    bio: {
-      label: 'Bio',
-      placeholder: 'Tell us about yourself...',
-      description: 'Max 200 characters',
-    },
-    profilePicture: {
-      label: 'Profile Picture',
-      description: 'Upload a profile picture',
-    },
-    submit: 'Save Profile',
-    submitting: 'Saving...',
-  },
-  validation: {
-    name: {
-      required: 'Name is required',
-      minLength: 'Name must be at least 2 characters long',
-      maxLength: 'Name cannot exceed 50 characters',
-    },
-    email: {
-      required: 'Email is required',
-      invalid: 'Please enter a valid email address',
-    },
-    bio: {
-      maxLength: 'Bio cannot exceed 200 characters',
-    },
-    server: {
-      error: 'Error submitting form',
-    },
-  },
-  notifications: {
-    success: 'Profile updated successfully!',
-    error: 'Failed to update profile',
-  },
+// Dictionary mapping
+const dictionaries = {
+  en: enDictionary,
+  ar: arDictionary,
 };
 
 export function getDictionary(locale: Locale | undefined): Dictionary {
-  return mockDictionary;
+  // If locale is undefined or not supported, use default locale
+  if (!locale || !dictionaries[locale]) {
+    return dictionaries[defaultLocale];
+  }
+  
+  // Return the dictionary for the requested locale
+  return dictionaries[locale];
 }
 
 export function getLocaleFromPathname(pathname: string): Locale {
-  return 'en' as Locale;
+  const pathnameSegments = pathname.split('/').filter(segment => segment);
+  const firstSegment = pathnameSegments[0];
+  
+  if (locales.includes(firstSegment as Locale)) {
+    return firstSegment as Locale;
+  }
+  
+  return defaultLocale;
 }
 
 export function createLocalizedUrl(pathname: string, locale: Locale): string {
-  return `/${locale}${pathname}`;
+  // Extract the current locale from the path
+  const pathnameSegments = pathname.split('/').filter(segment => segment);
+  const currentLocale = pathnameSegments[0];
+  
+  // Check if the current path starts with a valid locale
+  const hasLocalePrefix = locales.includes(currentLocale as Locale);
+  
+  if (hasLocalePrefix) {
+    // Remove the current locale from the path
+    const pathWithoutLocale = '/' + pathnameSegments.slice(1).join('/');
+    return `/${locale}${pathWithoutLocale}`;
+  } else {
+    // If the path doesn't start with a locale, just add the new locale
+    return `/${locale}${pathname}`;
+  }
 }

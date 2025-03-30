@@ -5,8 +5,8 @@ import { ProfileFormSkeleton } from "../components/ui/skeleton";
 import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
-
 import { mockUser } from "../lib/mock-data";
+import RTLWrapper from "../components/rtl-wrapper"; // Import the new component
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -23,12 +23,13 @@ export default async function LocalePage(props: PageProps) {
   }
   
   const dictionary = getDictionary(locale as Locale);
+  const isRTL = locale === 'ar';
   
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-gray-50 py-8" key={locale}>
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl">
-          <div className="mb-6 flex justify-end">
+          <div className={`mb-6 flex ${isRTL ? 'justify-start' : 'justify-end'}`}>
             <LanguageSwitcher />
           </div>
           
@@ -43,7 +44,9 @@ export default async function LocalePage(props: PageProps) {
           
           <div className="overflow-hidden rounded-lg bg-white shadow">
             <Suspense fallback={<ProfileFormSkeleton />}>
-              <ProfileFormContent locale={locale as Locale} />
+              <RTLWrapper locale={locale}>
+                <ProfileFormContent locale={locale as Locale} />
+              </RTLWrapper>
             </Suspense>
           </div>
         </div>

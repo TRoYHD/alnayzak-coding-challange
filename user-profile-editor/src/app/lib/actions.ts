@@ -1,4 +1,3 @@
-// app/lib/actions.ts
 'use server'
 
 import { createSchemas } from "./schemas";
@@ -9,7 +8,6 @@ import { getDictionary } from "../i18n/utils";
 
 export async function getUser() {
   try {
-    // Use relative URL instead of hardcoded localhost
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
       : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -38,19 +36,16 @@ export async function submitProfileForm(
   const dictionary = getDictionary(locale);
   const { userProfileFormSchema } = createSchemas(locale);
   
-  // Extract form data
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const bio = formData.get("bio") as string;
   
-  // Validate with Zod
   const validatedFields = userProfileFormSchema.safeParse({
     name,
     email,
-    bio: bio || undefined, // Handle optional bio
+    bio: bio || undefined, 
   });
   
-  // Return validation errors if validation fails
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -59,9 +54,7 @@ export async function submitProfileForm(
     };
   }
   
-  // If validation passes, proceed with API call
   try {
-    // Use relative URL instead of hardcoded localhost
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
       : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -84,10 +77,8 @@ export async function submitProfileForm(
       };
     }
     
-    // Revalidate the current path to refresh server data
     revalidatePath(`/${locale}`);
     
-    // Return success
     return {
       success: true,
       message: dictionary.notifications.success,

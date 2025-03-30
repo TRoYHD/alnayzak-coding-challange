@@ -1,4 +1,6 @@
-import { InputHTMLAttributes, forwardRef } from "react";
+'use client';
+
+import { InputHTMLAttributes, forwardRef, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -9,12 +11,20 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, description, id, onBlur, ...props }, ref) => {
+  ({ className, label, error, description, id, onBlur, dir, ...props }, ref) => {
     const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, "-")}`;
     const hasError = error && error.length > 0;
     
+    // Safe client-side detection of RTL
+    const [isRTL, setIsRTL] = useState(false);
+    
+    useEffect(() => {
+      // Only access document in useEffect (client-side only)
+      setIsRTL(document.documentElement.dir === 'rtl');
+    }, []);
+    
     return (
-      <div className="space-y-2">
+      <div className="space-y-2" style={{ textAlign: isRTL ? 'right' : 'left' }}>
         {label && (
           <label 
             htmlFor={inputId} 
@@ -26,6 +36,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           id={inputId}
           ref={ref}
+          dir={isRTL ? 'rtl' : 'ltr'}
           className={twMerge(
             "flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
             hasError 
@@ -33,6 +44,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               : "border-gray-300",
             className
           )}
+          style={{ textAlign: isRTL ? 'right' : 'left' }}
           aria-invalid={hasError}
           aria-describedby={hasError ? `${inputId}-error` : description ? `${inputId}-description` : undefined}
           onBlur={onBlur}

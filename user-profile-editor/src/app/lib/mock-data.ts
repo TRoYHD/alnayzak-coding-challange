@@ -1,4 +1,3 @@
-// app/lib/mock-data.ts
 import { UserProfile } from "../types";
 
 export const mockUser: UserProfile = {
