@@ -8,12 +8,12 @@ import { mockUser, delay } from "../mock-data"
 import { revalidatePath } from 'next/cache';
 import { Locale } from '../../i18n/config';
 
-// Extremely simplified version for Vercel deployment
+// Simply return mock data - no API calls, no try/catch
 export async function getUser() {
-  // No try/catch, no fetch - just return mock data
   return mockUser;
 }
 
+// Simple form submission with validation - no API calls
 export async function submitProfileForm(
   prevState: FormState,
   formData: FormData,
@@ -43,10 +43,7 @@ export async function submitProfileForm(
     };
   }
   
-  // Always simulate success - no fetch calls at all
-  await delay(800);
-  
-  // Revalidate the current path
+  // Simply return success - no API calls
   revalidatePath(`/${locale}`);
   
   return {
