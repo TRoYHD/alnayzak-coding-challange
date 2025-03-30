@@ -1,3 +1,49 @@
+# User Profile Editor
+
+A modern, internationalized user profile form built with Next.js, featuring real-time validation, server actions, and progressive enhancement.
+
+![User Profile Editor Screenshot](https://via.placeholder.com/800x450?text=User+Profile+Editor)
+
+## Features
+
+- Server-side rendered form with Next.js App Router
+- Real-time form validation with Zod
+- Internationalization (i18n) with English and Arabic support
+- RTL layout support for Arabic language
+- Profile picture upload with preview
+- Toast notifications for form actions
+- Responsive design with Tailwind CSS
+- Type-safe implementation with TypeScript
+
+## Live Demo
+
+[View Demo](https://user-profile-editor.vercel.app)
+
+## Architecture Overview
+
+The User Profile Editor is built using a modern architecture with:
+
+- Server Components: Initial rendering and data fetching
+- Server Actions: Form submissions and API interactions
+- Client Components: Interactive UI elements and real-time validation
+- Zod Validation: Shared schemas for both client and server-side validation
+- Context Providers: Toast notifications and RTL support
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or later
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/user-profile-editor.git
+cd user-profile-editor
+
 User Profile Editor
 A modern, internationalized user profile form built with Next.js, featuring real-time validation, server actions, and progressive enhancement.
 Features
