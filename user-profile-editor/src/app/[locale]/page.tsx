@@ -5,7 +5,7 @@ import { ProfileFormSkeleton } from "../components/ui/skeleton";
 import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
-import { mockUser } from "../lib/mock-data";
+import { mockUser,getLocalizedBio } from "../lib/mock-data";
 import RTLWrapper from "../components/rtl-wrapper"; // Import the new component
 
 interface PageProps {
@@ -56,7 +56,10 @@ export default async function LocalePage(props: PageProps) {
 }
 
 function ProfileFormContent({ locale }: { locale: Locale }) {
-  const user = mockUser;
+  const user = {
+    ...mockUser,
+    bio: getLocalizedBio(locale)
+  };
   
   return (
     <div className="p-6">

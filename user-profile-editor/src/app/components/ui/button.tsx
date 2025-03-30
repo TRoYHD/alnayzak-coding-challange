@@ -1,4 +1,3 @@
-// app/components/ui/button.tsx
 import { ButtonHTMLAttributes, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 

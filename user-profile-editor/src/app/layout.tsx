@@ -33,38 +33,6 @@ export default async function RootLayout({
   
   return (
     <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'}>
-      <head>
-        {/* Add RTL-specific styles */}
-        {isRTL && (
-          <style type="text/css">{`
-            body {
-              text-align: right;
-            }
-            
-            /* Fix layout for RTL */
-            .space-x-4 > * + * {
-              margin-left: 0;
-              margin-right: 1rem;
-            }
-            
-            /* Fix flex alignments for RTL */
-            .justify-end {
-              justify-content: flex-start;
-            }
-            
-            /* Fix margins for RTL */
-            .ml-3 {
-              margin-left: 0;
-              margin-right: 0.75rem;
-            }
-            
-            /* Ensure text inputs and textareas are properly aligned */
-            input, textarea {
-              text-align: right; 
-            }
-          `}</style>
-        )}
-      </head>
       <body className={inter.className}>
         <ToastProvider>
           {children}

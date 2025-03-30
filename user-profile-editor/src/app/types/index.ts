@@ -1,18 +1,19 @@
 export interface UserProfile {
-    id: string;
-    name: string;
-    email: string;
-    bio?: string;
-    avatar?: string;
-  }
-  
-  export interface FormState {
-    errors?: {
+  id: string;
+  name: string;
+  email: string;
+  bio?: string;
+  avatar?: string;
+}
+
+export interface FormState {
+  errors?: {
       name?: string[];
       email?: string[];
       bio?: string[];
       server?: string[];
-    };
-    success?: boolean;
-    message?: string;
-  }
+      [key: string]: string[] | undefined; 
+  };
+  success?: boolean;
+  message?: string;
+}

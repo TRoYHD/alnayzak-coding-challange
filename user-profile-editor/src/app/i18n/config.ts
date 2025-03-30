@@ -24,6 +24,8 @@ export interface Dictionary {
     profilePicture: {
       label: string;
       description: string;
+      chooseImage?: string;
+      remove?: string;
     };
     submit: string;
     submitting: string;

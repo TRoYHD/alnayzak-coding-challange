@@ -22,6 +22,8 @@ const dictionary: Dictionary = {
     profilePicture: {
       label: 'Profile Picture',
       description: 'Upload a profile picture',
+      chooseImage: 'Choose Image',
+      remove: 'Remove',
     },
     submit: 'Save Profile',
     submitting: 'Saving...',

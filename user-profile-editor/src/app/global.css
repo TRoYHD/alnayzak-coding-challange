@@ -1,69 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Add this to your global.css file */
 
-/* RTL Support */
+/* RTL Support - Clean Implementation */
 [dir="rtl"] {
-    text-align: right;
-  }
-  
-  /* RTL Form Controls */
-  [dir="rtl"] input,
-  [dir="rtl"] textarea {
-    text-align: right;
-  }
-  
-  /* RTL specific layout fixes */
-  [dir="rtl"] .space-x-4 > * + * {
-    margin-left: 0;
-    margin-right: 1rem;
-  }
-  
-  [dir="rtl"] .ml-3 {
-    margin-left: 0;
-    margin-right: 0.75rem;
-  }
-  
-  [dir="rtl"] .mr-2 {
-    margin-right: 0;
-    margin-left: 0.5rem;
-  }
-  
-  /* RTL flex direction changes */
-  [dir="rtl"] .flex-row {
-    flex-direction: row-reverse;
-  }
-  
-  /* RTL text alignment for form labels */
-  [dir="rtl"] label {
-    text-align: right;
-  }
-  
-  /* RTL flex alignment overrides */
-  [dir="rtl"] .justify-end {
-    justify-content: flex-start;
-  }
-  
-  [dir="rtl"] .justify-start {
-    justify-content: flex-end;
-  }
-  
-  /* RTL padding adjustments */
-  [dir="rtl"] .px-3 {
-    padding-right: 0.75rem;
-    padding-left: 0.75rem;
-  }
-  
-  /* RTL border adjustments for specific UI elements */
-  [dir="rtl"] .rounded-lg.border-l-4 {
-    border-left-width: 0;
-    border-right-width: 4px;
-  }
-  
-  /* RTL toast position */
-  [dir="rtl"] .right-4 {
-    right: auto;
-    left: 1rem;
-  }
-  
+  text-align: right;
+}
+
+/* Form components */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] .text-input,
+[dir="rtl"] .form-label {
+  text-align: right;
+}
+
+[dir="rtl"] .form-group {
+  direction: rtl;
+}
+
+/* Spacing fixes for RTL */
+[dir="rtl"] .space-x-6 > * + * {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+[dir="rtl"] .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Margin adjustments */
+[dir="rtl"] .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* List adjustments */
+[dir="rtl"] .list-disc.pl-5 {
+  padding-left: 0;
+  padding-right: 1.25rem;
+}
+
+/* Focus ring offset direction */
+[dir="rtl"] .focus-visible:ring-offset-2 {
+  --tw-ring-offset-width: 2px;
+}
+
+/* Fix flexbox alignment in RTL */
+[dir="rtl"] .justify-end {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .justify-start {
+  justify-content: flex-end;
+}
+
+/* RTL-specific padding fixes */
+[dir="rtl"] .px-4 {
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+[dir="rtl"] .px-6 {
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+/* RTL utility classes */
+.rtl-space-x-reverse {
+  --tw-space-x-reverse: 1;
+}
+
+.rtl-space-x-6 > * + * {
+  margin-right: calc(1.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.rtl-space-x-3 > * + * {
+  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+/* RTL toast position */
+[dir="rtl"] .right-4 {
+  right: auto;
+  left: 1rem;
+}
