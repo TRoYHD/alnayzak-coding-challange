@@ -9,6 +9,8 @@ import { Locale, defaultLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import { submitProfileForm } from "../lib/actions";
 import { useToast } from "./toast-provider";
+import { createSchemas } from "../lib/schemas";
+import { useRTL } from '../context/rtl-context';
 
 interface ProfileFormProps {
   initialData: UserProfile;
@@ -19,7 +21,8 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   const formRef = useRef<HTMLFormElement>(null);
   const isFirstRender = useRef(true);
   const lastValidatedFormData = useRef<any>(null);
-  
+  const { isRTL } = useRTL();
+
   // Get the dictionary only once during component initialization
   const dictionaryRef = useRef(getDictionary(locale)); 
   const dictionary = dictionaryRef.current;
@@ -41,14 +44,18 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   const [isPending, setIsPending] = useState(false);
   const { showToast } = useToast();
   
-  const isRTL = locale === 'ar';
   
-  // Handle form state changes for toast notifications, but only after the first render
   const handleFormStateChange = (newState: FormState) => {
-    setFormState(newState);
+    const wasFirstRender = isFirstRender.current;
     
     if (isFirstRender.current) {
       isFirstRender.current = false;
+    }
+    
+    setFormState(newState);
+    
+    // Skip toast only for the initial render state set, not for form submissions
+    if (wasFirstRender && !newState.success && !newState.message) {
       return;
     }
     
@@ -59,11 +66,79 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     }
   };
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setTouched(prev => ({ ...prev, [name]: true }));
-  };
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const { name, value } = e.target;
+  
+  // Update form data
+  const updatedFormData = { ...formData, [name]: value };
+  setFormData(updatedFormData);
+  
+  // Mark as touched
+  setTouched(prev => ({ ...prev, [name]: true }));
+  
+  // Get the validation schema
+  const { clientValidationSchema } = createSchemas(locale);
+  
+  try {
+    // Explicit validation based on field name
+    if (name === 'name') {
+      // Validate just the name field
+      const result = clientValidationSchema.shape.name.safeParse(value);
+      
+      if (!result.success) {
+        setClientErrors(prev => ({
+          ...prev,
+          name: result.error.errors.map(err => err.message)
+        }));
+      } else {
+        // Clear errors for this field
+        setClientErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.name;
+          return newErrors;
+        });
+      }
+    } 
+    else if (name === 'email') {
+      // Validate just the email field
+      const result = clientValidationSchema.shape.email.safeParse(value);
+      
+      if (!result.success) {
+        setClientErrors(prev => ({
+          ...prev,
+          email: result.error.errors.map(err => err.message)
+        }));
+      } else {
+        // Clear errors for this field
+        setClientErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.email;
+          return newErrors;
+        });
+      }
+    }
+    else if (name === 'bio') {
+      // Validate just the bio field
+      const result = clientValidationSchema.shape.bio.safeParse(value);
+      
+      if (!result.success) {
+        setClientErrors(prev => ({
+          ...prev,
+          bio: result.error.errors.map(err => err.message)
+        }));
+      } else {
+        // Clear errors for this field
+        setClientErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.bio;
+          return newErrors;
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Validation error:", error);
+  }
+};
   
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name } = e.target;
@@ -138,7 +213,8 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
   };
   
   const getFieldError = (fieldName: string) => {
-    if (clientErrors[fieldName] && touched[fieldName]) {
+    // Always show client errors if they exist, regardless of touched state
+    if (clientErrors[fieldName]) {
       return clientErrors[fieldName];
     }
     return formState.errors?.[fieldName];

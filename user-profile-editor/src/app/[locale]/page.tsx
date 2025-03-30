@@ -6,7 +6,7 @@ import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
 import { mockUser,getLocalizedBio } from "../lib/mock-data";
-import RTLWrapper from "../components/rtl-wrapper"; // Import the new component
+import { RTLProvider } from "../context/rtl-context";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -29,7 +29,7 @@ export default async function LocalePage(props: PageProps) {
     <main className="min-h-screen bg-gray-50 py-8" key={locale}>
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl">
-          <div className={`mb-6 flex ${isRTL ? 'justify-start' : 'justify-end'}`}>
+          <div className="mb-6 flex justify-end">
             <LanguageSwitcher />
           </div>
           
@@ -44,14 +44,15 @@ export default async function LocalePage(props: PageProps) {
           
           <div className="overflow-hidden rounded-lg bg-white shadow">
             <Suspense fallback={<ProfileFormSkeleton />}>
-              <RTLWrapper locale={locale}>
+              <RTLProvider locale={locale as Locale}>
                 <ProfileFormContent locale={locale as Locale} />
-              </RTLWrapper>
+              </RTLProvider>
             </Suspense>
           </div>
         </div>
       </div>
     </main>
+
   );
 }
 
