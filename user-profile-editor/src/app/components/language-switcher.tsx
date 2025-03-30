@@ -15,11 +15,10 @@ export default function LanguageSwitcher() {
     pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   ) || "en";
   
+  // This needs to match the locales defined in your i18n/config.ts file
   const languageNames: Record<Locale, string> = {
     en: "English",
-    es: "Español",
-    fr: "Français",
-    de: "Deutsch",
+    ar: "العربية",
   };
   
   const handleLocaleChange = (locale: Locale) => {

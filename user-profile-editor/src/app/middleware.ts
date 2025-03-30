@@ -1,35 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { locales, defaultLocale } from '../app/i18n/config';
 
-function getLocale(request: NextRequest) {
-  // Get locale from pathname
-  const pathname = request.nextUrl.pathname;
-  const segments = pathname.split('/').filter(Boolean);
-  const firstSegment = segments[0];
-
-  if (firstSegment && locales.includes(firstSegment as any)) {
-    return firstSegment;
-  }
-
-  // Get locale from Accept-Language header
-  const acceptLanguage = request.headers.get('Accept-Language');
-  if (acceptLanguage) {
-    const acceptedLocales = acceptLanguage.split(',').map(locale => locale.split(';')[0].trim());
-    const matchedLocale = acceptedLocales.find(locale => {
-      const language = locale.split('-')[0];
-      return locales.includes(language as any);
-    });
-
-    if (matchedLocale) {
-      const language = matchedLocale.split('-')[0];
-      if (locales.includes(language as any)) {
-        return language;
-      }
-    }
-  }
-
-  return defaultLocale;
-}
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -44,18 +15,51 @@ export function middleware(request: NextRequest) {
   }
   
   // Check if pathname already has a locale
-  const segments = pathname.split('/').filter(Boolean);
-  const hasLocale = segments.length > 0 && locales.includes(segments[0] as any);
+  const pathnameHasLocale = locales.some(
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
   
-  if (!hasLocale) {
+  if (!pathnameHasLocale) {
+    // Determine the locale to use (from header or default)
+    const locale = getLocaleFromHeader(request) || defaultLocale;
+    
+    // Add a locale-specific header that can be read from server components
+    // This avoids the dynamic params issue
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-locale', locale);
+    
     // Redirect to the same URL but with locale prefix
-    const locale = getLocale(request);
     const newUrl = new URL(`/${locale}${pathname}`, request.url);
     newUrl.search = request.nextUrl.search;
+    
     return NextResponse.redirect(newUrl);
   }
   
-  return NextResponse.next();
+  // For paths that already have a locale, add the locale header
+  const locale = pathname.split('/')[1];
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-locale', locale);
+  
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders
+    }
+  });
+}
+
+function getLocaleFromHeader(request: NextRequest): string | null {
+  const acceptLanguage = request.headers.get('Accept-Language');
+  if (!acceptLanguage) return null;
+  
+  const acceptedLocales = acceptLanguage.split(',')
+    .map(locale => locale.split(';')[0].trim().toLowerCase())
+    .map(locale => locale.split('-')[0]);
+  
+  const matchedLocale = acceptedLocales.find(locale => 
+    locales.includes(locale as any)
+  );
+  
+  return matchedLocale || null;
 }
 
 export const config = {

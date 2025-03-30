@@ -8,13 +8,18 @@ import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
 
-type PageProps = {
-  params: { locale: string };
-  searchParams: Record<string, string | string[] | undefined>;
-};
+// In Next.js 15, both params and searchParams are Promise-like objects
+interface PageProps {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
 export default async function LocalePage(props: PageProps) {
-  const { locale } = props.params;
+  // Await both params and searchParams to satisfy the type system
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  
+  const locale = params.locale;
   
   // Check if the locale is supported
   if (!locales.includes(locale as Locale)) {
