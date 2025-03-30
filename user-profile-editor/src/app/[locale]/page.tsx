@@ -3,10 +3,12 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ProfileForm } from "../components/profile-form";
 import { ProfileFormSkeleton } from "../components/ui/skeleton";
-import { getUser } from "../lib/actions";
 import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
+
+// Import mock data directly
+import { mockUser } from "../lib/mock-data";
 
 // In Next.js 15, both params and searchParams are Promise-like objects
 interface PageProps {
@@ -17,7 +19,6 @@ interface PageProps {
 export default async function LocalePage(props: PageProps) {
   // Await both params and searchParams to satisfy the type system
   const params = await props.params;
-  const searchParams = await props.searchParams;
   
   const locale = params.locale;
   
@@ -56,10 +57,10 @@ export default async function LocalePage(props: PageProps) {
   );
 }
 
-// This component allows us to use async/await for data fetching
-async function ProfileFormContent({ locale }: { locale: Locale }) {
-  // Fetch user data with SSR
-  const user = await getUser();
+// This component uses direct mock data - no fetch calls at all
+function ProfileFormContent({ locale }: { locale: Locale }) {
+  // Use mock data directly without fetching
+  const user = mockUser;
   
   return (
     <div className="p-6">

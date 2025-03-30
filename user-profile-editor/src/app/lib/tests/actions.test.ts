@@ -8,12 +8,14 @@ import { mockUser, delay } from "../mock-data"
 import { revalidatePath } from 'next/cache';
 import { Locale } from '../../i18n/config';
 
-// Simply return mock data - no API calls, no try/catch
+
+// No try/catch, no error throwing - just return mock data
 export async function getUser() {
+  // Simply return the mock user without any chance of error
   return mockUser;
 }
 
-// Simple form submission with validation - no API calls
+// No fetch calls for form submission either
 export async function submitProfileForm(
   prevState: FormState,
   formData: FormData,
@@ -43,7 +45,7 @@ export async function submitProfileForm(
     };
   }
   
-  // Simply return success - no API calls
+  // Always return success for valid data
   revalidatePath(`/${locale}`);
   
   return {
