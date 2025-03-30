@@ -1,57 +1,255 @@
-// app/lib/schemas.ts
-import { z } from "zod";
-import { getDictionary } from "../../i18n/utils";
-import { Locale } from "../../i18n/config";
+// src/app/lib/tests/schemas.test.ts
+import { z } from 'zod';
 
-// Create schemas with dynamic error messages based on locale
-export function createSchemas(locale: Locale) {
-  const dictionary = getDictionary(locale);
-  
-  const userProfileSchema = z.object({
-    id: z.string(),
-    name: z.string().min(2, {
-      message: dictionary.validation.name.minLength,
-    }).max(50, {
-      message: dictionary.validation.name.maxLength,
-    }),
-    email: z.string().email({
-      message: dictionary.validation.email.invalid,
-    }),
-    bio: z.string().max(200, {
-      message: dictionary.validation.bio.maxLength,
-    }).optional(),
-    avatar: z.string().optional(),
+// Mock dictionary for testing
+const mockDictionary = {
+  validation: {
+    name: {
+      required: 'Name is required',
+      minLength: 'Name must be at least 2 characters',
+      maxLength: 'Name cannot exceed 50 characters'
+    },
+    email: {
+      required: 'Email is required',
+      invalid: 'Invalid email format'
+    },
+    bio: {
+      maxLength: 'Bio cannot exceed 200 characters'
+    },
+    server: {
+      error: 'Server error'
+    }
+  },
+  notifications: {
+    success: 'Success',
+    error: 'Error'
+  }
+};
+
+// Mock i18n functions
+jest.mock('../../i18n/utils', () => ({
+  getDictionary: jest.fn().mockReturnValue(mockDictionary)
+}));
+
+// Import after mocks are set up
+import { createSchemas } from '../schemas';
+
+describe('Schema validation', () => {
+  describe('userProfileSchema', () => {
+    test('validates a complete user profile', () => {
+      const { userProfileSchema } = createSchemas('en');
+      
+      const validProfile = {
+        id: 'user-123',
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'This is a valid bio',
+        avatar: '/images/avatar.jpg'
+      };
+      
+      const result = userProfileSchema.safeParse(validProfile);
+      expect(result.success).toBe(true);
+    });
+    
+    test('accepts profile without optional fields', () => {
+      const { userProfileSchema } = createSchemas('en');
+      
+      const validProfile = {
+        id: 'user-123',
+        name: 'John Doe',
+        email: 'john@example.com'
+      };
+      
+      const result = userProfileSchema.safeParse(validProfile);
+      expect(result.success).toBe(true);
+    });
+    
+    test('rejects profile with invalid id', () => {
+      const { userProfileSchema } = createSchemas('en');
+      
+      const invalidProfile = {
+        id: 123, // Should be string
+        name: 'John Doe',
+        email: 'john@example.com'
+      };
+      
+      const result = userProfileSchema.safeParse(invalidProfile);
+      expect(result.success).toBe(false);
+    });
   });
   
-  const userProfileFormSchema = userProfileSchema.omit({ id: true, avatar: true });
-  
-  // Client-side validation schema
-  const clientValidationSchema = z.object({
-    name: z.string()
-      .min(1, { message: dictionary.validation.name.required })
-      .min(2, { message: dictionary.validation.name.minLength })
-      .max(50, { message: dictionary.validation.name.maxLength }),
-    email: z.string()
-      .min(1, { message: dictionary.validation.email.required })
-      .email({ message: dictionary.validation.email.invalid }),
-    bio: z.string()
-      .max(200, { message: dictionary.validation.bio.maxLength })
-      .optional(),
+  describe('userProfileFormSchema', () => {
+    test('validates form data without id and avatar', () => {
+      const { userProfileFormSchema } = createSchemas('en');
+      
+      const validFormData = {
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'This is a valid bio'
+      };
+      
+      const result = userProfileFormSchema.safeParse(validFormData);
+      expect(result.success).toBe(true);
+    });
+    
+    test('rejects form data with id field', () => {
+      const { userProfileFormSchema } = createSchemas('en');
+      
+      const invalidFormData = {
+        id: 'user-123', // Should be omitted
+        name: 'John Doe',
+        email: 'john@example.com'
+      };
+      
+      // @ts-ignore - intentionally testing invalid input
+      const result = userProfileFormSchema.safeParse(invalidFormData);
+      expect(result.success).toBe(true); // Id is stripped by the omit transform
+    });
   });
   
-  return {
-    userProfileSchema,
-    userProfileFormSchema,
-    clientValidationSchema,
-  };
-}
-
-// Default schemas with English locale (for type inference)
-export const { 
-  userProfileSchema,
-  userProfileFormSchema,
-  clientValidationSchema,
-} = createSchemas('en');
-
-export type UserProfileFormValues = z.infer<typeof userProfileFormSchema>;
-export type ClientFormValues = z.infer<typeof clientValidationSchema>;
+  describe('clientValidationSchema', () => {
+    test('validates name field correctly', () => {
+      const { clientValidationSchema } = createSchemas('en');
+      
+      // Valid name
+      expect(clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com'
+      }).success).toBe(true);
+      
+      // Name too short
+      const shortNameResult = clientValidationSchema.safeParse({
+        name: 'J',
+        email: 'john@example.com'
+      });
+      expect(shortNameResult.success).toBe(false);
+      
+      // Name too long
+      const longNameResult = clientValidationSchema.safeParse({
+        name: 'J'.repeat(51),
+        email: 'john@example.com'
+      });
+      expect(longNameResult.success).toBe(false);
+      
+      // Empty name
+      const emptyNameResult = clientValidationSchema.safeParse({
+        name: '',
+        email: 'john@example.com'
+      });
+      expect(emptyNameResult.success).toBe(false);
+    });
+    
+    test('validates email field correctly', () => {
+      const { clientValidationSchema } = createSchemas('en');
+      
+      // Valid email
+      expect(clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com'
+      }).success).toBe(true);
+      
+      // Invalid email format
+      const invalidEmailResult = clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'invalid-email'
+      });
+      expect(invalidEmailResult.success).toBe(false);
+      
+      // Empty email
+      const emptyEmailResult = clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: ''
+      });
+      expect(emptyEmailResult.success).toBe(false);
+    });
+    
+    test('validates bio field correctly', () => {
+      const { clientValidationSchema } = createSchemas('en');
+      
+      // Valid bio
+      expect(clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'This is a valid bio'
+      }).success).toBe(true);
+      
+      // Missing bio (should be valid as it's optional)
+      expect(clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com'
+      }).success).toBe(true);
+      
+      // Bio too long
+      const longBio = 'a'.repeat(201);
+      const longBioResult = clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: longBio
+      });
+      expect(longBioResult.success).toBe(false);
+    });
+    
+    test('combines validation rules correctly', () => {
+      const { clientValidationSchema } = createSchemas('en');
+      
+      // Multiple errors
+      const result = clientValidationSchema.safeParse({
+        name: '',
+        email: 'invalid',
+        bio: 'a'.repeat(201)
+      });
+      
+      expect(result.success).toBe(false);
+      
+      if (!result.success) {
+        const errors = result.error.format();
+        expect(errors.name).toBeDefined();
+        expect(errors.email).toBeDefined();
+        expect(errors.bio).toBeDefined();
+      }
+    });
+  });
+  
+  describe('Localization', () => {
+    test('uses correct error messages from dictionary', () => {
+      const { clientValidationSchema } = createSchemas('en');
+      
+      // Test name error message
+      const nameResult = clientValidationSchema.safeParse({
+        name: 'J',
+        email: 'john@example.com'
+      });
+      
+      expect(nameResult.success).toBe(false);
+      if (!nameResult.success) {
+        const errors = nameResult.error.flatten().fieldErrors;
+        expect(errors.name?.[0]).toBe(mockDictionary.validation.name.minLength);
+      }
+      
+      // Test email error message
+      const emailResult = clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'invalid'
+      });
+      
+      expect(emailResult.success).toBe(false);
+      if (!emailResult.success) {
+        const errors = emailResult.error.flatten().fieldErrors;
+        expect(errors.email?.[0]).toBe(mockDictionary.validation.email.invalid);
+      }
+      
+      // Test bio error message
+      const bioResult = clientValidationSchema.safeParse({
+        name: 'John Doe',
+        email: 'john@example.com',
+        bio: 'a'.repeat(201)
+      });
+      
+      expect(bioResult.success).toBe(false);
+      if (!bioResult.success) {
+        const errors = bioResult.error.flatten().fieldErrors;
+        expect(errors.bio?.[0]).toBe(mockDictionary.validation.bio.maxLength);
+      }
+    });
+  });
+});

@@ -7,7 +7,7 @@ function getLocale(request: NextRequest) {
   const segments = pathname.split('/').filter(Boolean);
   const firstSegment = segments[0];
 
-  if (firstSegment && locales.includes(firstSegment)) {
+  if (firstSegment && locales.includes(firstSegment as any)) {
     return firstSegment;
   }
 
@@ -17,12 +17,12 @@ function getLocale(request: NextRequest) {
     const acceptedLocales = acceptLanguage.split(',').map(locale => locale.split(';')[0].trim());
     const matchedLocale = acceptedLocales.find(locale => {
       const language = locale.split('-')[0];
-      return locales.includes(language);
+      return locales.includes(language as any);
     });
 
     if (matchedLocale) {
       const language = matchedLocale.split('-')[0];
-      if (locales.includes(language)) {
+      if (locales.includes(language as any)) {
         return language;
       }
     }
@@ -40,12 +40,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api') ||
     pathname.includes('.')
   ) {
-    return;
+    return NextResponse.next();
   }
   
   // Check if pathname already has a locale
   const segments = pathname.split('/').filter(Boolean);
-  const hasLocale = segments.length > 0 && locales.includes(segments[0]);
+  const hasLocale = segments.length > 0 && locales.includes(segments[0] as any);
   
   if (!hasLocale) {
     // Redirect to the same URL but with locale prefix
@@ -54,6 +54,8 @@ export function middleware(request: NextRequest) {
     newUrl.search = request.nextUrl.search;
     return NextResponse.redirect(newUrl);
   }
+  
+  return NextResponse.next();
 }
 
 export const config = {

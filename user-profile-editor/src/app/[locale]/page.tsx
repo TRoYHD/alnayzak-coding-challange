@@ -8,13 +8,14 @@ import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
 
-interface LocalePageProps {
-  params: {
-    locale: string;
-  };
-}
+type PageProps = {
+  params: { locale: string };
+  searchParams: Record<string, string | string[] | undefined>;
+};
 
-export default async function LocalePage({ params: { locale } }: LocalePageProps) {
+export default async function LocalePage(props: PageProps) {
+  const { locale } = props.params;
+  
   // Check if the locale is supported
   if (!locales.includes(locale as Locale)) {
     notFound();
