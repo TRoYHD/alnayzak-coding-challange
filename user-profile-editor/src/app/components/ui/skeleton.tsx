@@ -1,4 +1,3 @@
-// app/components/ui/skeleton.tsx
 import { HTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
 

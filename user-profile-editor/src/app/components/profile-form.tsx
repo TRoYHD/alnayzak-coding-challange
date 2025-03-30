@@ -1,4 +1,3 @@
-// app/components/profile-form.tsx
 "use client";
 
 import { useState, useEffect, useRef, useTransition, ChangeEvent } from "react";
@@ -21,15 +20,12 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialData, locale = defaultLocale }: ProfileFormProps) {
-  // References
   const formRef = useRef<HTMLFormElement>(null);
   const initialRender = useRef(true);
   
-  // Get dictionary
   const dictionary = getDictionary(locale);
   const { clientValidationSchema } = createSchemas(locale);
   
-  // Form state
   const [formData, setFormData] = useState<Omit<UserProfile, "id">>({
     name: initialData.name,
     email: initialData.email,
@@ -37,20 +33,16 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     avatar: initialData.avatar,
   });
   
-  // Client-side validation state
   const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   
-  // Profile picture preview
   const [previewImage, setPreviewImage] = useState<string | null>(initialData.avatar || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
-  // Server state
   const [formState, setFormState] = useState<FormState>(initialState);
   const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
   
-  // Validate form data when it changes and fields are touched
   useEffect(() => {
     if (Object.keys(touched).length === 0) return;
     
@@ -62,15 +54,12 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     }
   }, [formData, touched, clientValidationSchema]);
   
-  // Handle form state changes
   useEffect(() => {
-    // Skip initial render
     if (initialRender.current) {
       initialRender.current = false;
       return;
     }
     
-    // Only show toast if we have state data (success or errors)
     if (formState.success) {
       showToast(formState.message || dictionary.notifications.success, "success");
     } else if (formState.message && formState.errors && Object.keys(formState.errors).length > 0) {
@@ -78,31 +67,26 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     }
   }, [formState, dictionary, showToast]);
   
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setTouched(prev => ({ ...prev, [name]: true }));
   };
   
-  // Handle form field blur
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
   };
   
-  // Handle profile picture upload
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Check if file is an image
     if (!file.type.startsWith('image/')) {
       showToast('Please select an image file', 'error');
       return;
     }
     
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       showToast('Image size should be less than 5MB', 'error');
       return;
@@ -110,7 +94,6 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     
     setSelectedFile(file);
     
-    // Create a preview URL
     const reader = new FileReader();
     reader.onload = () => {
       setPreviewImage(reader.result as string);
@@ -118,31 +101,26 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     reader.readAsDataURL(file);
   };
   
-  // Form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Mark all fields as touched for validation
     const allTouched = Object.keys(formData).reduce((acc, key) => {
       acc[key] = true;
       return acc;
     }, {} as Record<string, boolean>);
     setTouched(allTouched);
     
-    // Client-side validation
     const validationResult = clientValidationSchema.safeParse(formData);
     if (!validationResult.success) {
       setClientErrors(validationResult.error.flatten().fieldErrors);
       return;
     }
     
-    // Prepare form data
     const formDataToSubmit = new FormData(e.currentTarget);
     if (selectedFile) {
       formDataToSubmit.append('avatar', selectedFile);
     }
     
-    // Submit using server action
     startTransition(async () => {
       try {
         const result = await submitProfileForm(formState, formDataToSubmit, locale);
@@ -158,7 +136,6 @@ export function ProfileForm({ initialData, locale = defaultLocale }: ProfileForm
     });
   };
   
-  // Get field error (client or server)
   const getFieldError = (fieldName: keyof ClientFormValues) => {
     if (clientErrors[fieldName] && touched[fieldName]) {
       return clientErrors[fieldName];

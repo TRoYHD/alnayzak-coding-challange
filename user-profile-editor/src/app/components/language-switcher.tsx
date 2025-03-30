@@ -10,19 +10,16 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   
-  // Get current locale from path
   const currentLocale = locales.find(locale => 
     pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   ) || "en";
   
-  // This needs to match the locales defined in your i18n/config.ts file
   const languageNames: Record<Locale, string> = {
     en: "English",
     ar: "العربية",
   };
   
   const handleLocaleChange = (locale: Locale) => {
-    // Navigate to the same page with the new locale
     const newPath = createLocalizedUrl(pathname, locale);
     router.push(newPath);
     setIsOpen(false);

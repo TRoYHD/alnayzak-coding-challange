@@ -1,4 +1,3 @@
-// app/components/ui/textarea.tsx
 import { TextareaHTMLAttributes, forwardRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 

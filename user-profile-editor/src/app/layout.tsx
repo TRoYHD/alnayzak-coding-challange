@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../app/global.css";
@@ -23,10 +22,8 @@ export default async function RootLayout({
   children,
   params,
 }: RootLayoutProps) {
-  // Default to English if locale is not provided
   let locale = defaultLocale;
   
-  // Safely await params if it exists
   if (params) {
     const resolvedParams = await params;
     locale = resolvedParams.locale || defaultLocale;

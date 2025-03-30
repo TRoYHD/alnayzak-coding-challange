@@ -1,7 +1,5 @@
-// Use CommonJS require instead of import
 require('@testing-library/jest-dom');
 
-// Mock Next.js features that aren't available in Jest
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -17,16 +15,13 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn(), 
 }));
 
-// Mock revalidatePath which comes from next/cache
 jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
 }));
 
-// Mock next/image without using JSX
 jest.mock('next/image', () => ({
   __esModule: true,
   default: function Image(props) {
-    // Return a function instead of JSX
     return {
       type: 'img',
       props: {
@@ -38,7 +33,6 @@ jest.mock('next/image', () => ({
   },
 }));
 
-// Mock global fetch
 global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
@@ -46,7 +40,6 @@ global.fetch = jest.fn(() =>
   })
 );
 
-// Add custom matchers
 expect.extend({
   toHaveValue(received, expected) {
     if (!received || typeof received.value === 'undefined') {
@@ -72,7 +65,6 @@ expect.extend({
   },
 });
 
-// Mock FormData
 global.FormData = class MockFormData {
   constructor() {
     this.data = {};
@@ -85,7 +77,6 @@ global.FormData = class MockFormData {
   }
 };
 
-// Mock FileReader
 global.FileReader = class MockFileReader {
   constructor() {
     this.onload = null;

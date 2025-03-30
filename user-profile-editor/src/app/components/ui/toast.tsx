@@ -1,4 +1,3 @@
-// app/components/ui/toast.tsx
 import { ReactNode, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -24,7 +23,7 @@ export function Toast({
       setIsVisible(false);
       setTimeout(() => {
         onClose && onClose();
-      }, 300); // Animation duration
+      }, 300); 
     }, duration);
 
     return () => clearTimeout(timer);

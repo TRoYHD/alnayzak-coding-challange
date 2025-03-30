@@ -1,4 +1,3 @@
-// app/types/index.ts
 export interface UserProfile {
     id: string;
     name: string;

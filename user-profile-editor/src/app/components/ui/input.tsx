@@ -1,4 +1,3 @@
-// app/components/ui/input.tsx
 import { InputHTMLAttributes, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 

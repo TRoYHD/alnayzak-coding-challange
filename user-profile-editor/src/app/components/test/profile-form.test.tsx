@@ -1,10 +1,8 @@
-// src/app/components/test/profile-form.test.tsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { UserProfile } from '../../types';
 import { Locale } from '../../i18n/config';
 
-// Mock the entire ProfileForm component for testing
 jest.mock('../profile-form', () => ({
   ProfileForm: ({ initialData }: { initialData: UserProfile; locale?: string }) => (
     <div>
@@ -15,10 +13,8 @@ jest.mock('../profile-form', () => ({
   )
 }));
 
-// Import the mocked component
 import { ProfileForm } from '../profile-form';
 
-// Basic test component for testing the setup
 function TestComponent({ message }: { message: string }) {
   return <div>{message}</div>;
 }

@@ -1,4 +1,3 @@
-// app/components/toast-provider.tsx
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
@@ -28,7 +27,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
     setToast({
       message,
       type,
-      id: Date.now(), // Unique ID for the toast
+      id: Date.now(), 
       duration,
     });
   };

@@ -1,7 +1,4 @@
-// src/app/lib/tests/schemas.test.ts
-import { z } from 'zod';
 
-// Mock dictionary for testing
 const mockDictionary = {
   validation: {
     name: {
@@ -26,12 +23,10 @@ const mockDictionary = {
   }
 };
 
-// Mock i18n functions
 jest.mock('../../i18n/utils', () => ({
   getDictionary: jest.fn().mockReturnValue(mockDictionary)
 }));
 
-// Import after mocks are set up
 import { createSchemas } from '../schemas';
 
 describe('Schema validation', () => {
@@ -68,7 +63,7 @@ describe('Schema validation', () => {
       const { userProfileSchema } = createSchemas('en');
       
       const invalidProfile = {
-        id: 123, // Should be string
+        id: 123, 
         name: 'John Doe',
         email: 'john@example.com'
       };
@@ -96,14 +91,13 @@ describe('Schema validation', () => {
       const { userProfileFormSchema } = createSchemas('en');
       
       const invalidFormData = {
-        id: 'user-123', // Should be omitted
+        id: 'user-123', 
         name: 'John Doe',
         email: 'john@example.com'
       };
       
-      // @ts-ignore - intentionally testing invalid input
       const result = userProfileFormSchema.safeParse(invalidFormData);
-      expect(result.success).toBe(true); // Id is stripped by the omit transform
+      expect(result.success).toBe(true); 
     });
   });
   
@@ -111,27 +105,23 @@ describe('Schema validation', () => {
     test('validates name field correctly', () => {
       const { clientValidationSchema } = createSchemas('en');
       
-      // Valid name
       expect(clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'john@example.com'
       }).success).toBe(true);
       
-      // Name too short
       const shortNameResult = clientValidationSchema.safeParse({
         name: 'J',
         email: 'john@example.com'
       });
       expect(shortNameResult.success).toBe(false);
       
-      // Name too long
       const longNameResult = clientValidationSchema.safeParse({
         name: 'J'.repeat(51),
         email: 'john@example.com'
       });
       expect(longNameResult.success).toBe(false);
       
-      // Empty name
       const emptyNameResult = clientValidationSchema.safeParse({
         name: '',
         email: 'john@example.com'
@@ -142,20 +132,17 @@ describe('Schema validation', () => {
     test('validates email field correctly', () => {
       const { clientValidationSchema } = createSchemas('en');
       
-      // Valid email
       expect(clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'john@example.com'
       }).success).toBe(true);
       
-      // Invalid email format
       const invalidEmailResult = clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'invalid-email'
       });
       expect(invalidEmailResult.success).toBe(false);
       
-      // Empty email
       const emptyEmailResult = clientValidationSchema.safeParse({
         name: 'John Doe',
         email: ''
@@ -166,20 +153,17 @@ describe('Schema validation', () => {
     test('validates bio field correctly', () => {
       const { clientValidationSchema } = createSchemas('en');
       
-      // Valid bio
       expect(clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'john@example.com',
         bio: 'This is a valid bio'
       }).success).toBe(true);
       
-      // Missing bio (should be valid as it's optional)
       expect(clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'john@example.com'
       }).success).toBe(true);
       
-      // Bio too long
       const longBio = 'a'.repeat(201);
       const longBioResult = clientValidationSchema.safeParse({
         name: 'John Doe',
@@ -192,7 +176,6 @@ describe('Schema validation', () => {
     test('combines validation rules correctly', () => {
       const { clientValidationSchema } = createSchemas('en');
       
-      // Multiple errors
       const result = clientValidationSchema.safeParse({
         name: '',
         email: 'invalid',
@@ -214,7 +197,6 @@ describe('Schema validation', () => {
     test('uses correct error messages from dictionary', () => {
       const { clientValidationSchema } = createSchemas('en');
       
-      // Test name error message
       const nameResult = clientValidationSchema.safeParse({
         name: 'J',
         email: 'john@example.com'
@@ -226,7 +208,6 @@ describe('Schema validation', () => {
         expect(errors.name?.[0]).toBe(mockDictionary.validation.name.minLength);
       }
       
-      // Test email error message
       const emailResult = clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'invalid'
@@ -238,7 +219,6 @@ describe('Schema validation', () => {
         expect(errors.email?.[0]).toBe(mockDictionary.validation.email.invalid);
       }
       
-      // Test bio error message
       const bioResult = clientValidationSchema.safeParse({
         name: 'John Doe',
         email: 'john@example.com',

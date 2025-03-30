@@ -1,4 +1,3 @@
-// app/lib/actions.ts
 'use server'
 
 import { createSchemas } from "../schemas";
@@ -9,13 +8,10 @@ import { revalidatePath } from 'next/cache';
 import { Locale } from '../../i18n/config';
 
 
-// No try/catch, no error throwing - just return mock data
 export async function getUser() {
-  // Simply return the mock user without any chance of error
   return mockUser;
 }
 
-// No fetch calls for form submission either
 export async function submitProfileForm(
   prevState: FormState,
   formData: FormData,
@@ -24,19 +20,16 @@ export async function submitProfileForm(
   const dictionary = getDictionary(locale);
   const { userProfileFormSchema } = createSchemas(locale);
   
-  // Extract form data
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const bio = formData.get("bio") as string;
   
-  // Validate with Zod
   const validatedFields = userProfileFormSchema.safeParse({
     name,
     email,
-    bio: bio || undefined, // Handle optional bio
+    bio: bio || undefined, 
   });
   
-  // Return validation errors if validation fails
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -45,7 +38,6 @@ export async function submitProfileForm(
     };
   }
   
-  // Always return success for valid data
   revalidatePath(`/${locale}`);
   
   return {

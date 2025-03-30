@@ -1,4 +1,3 @@
-// app/[locale]/page.tsx
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ProfileForm } from "../components/profile-form";
@@ -7,22 +6,18 @@ import { Locale, locales } from "../i18n/config";
 import { getDictionary } from "../i18n/utils";
 import LanguageSwitcher from "../components/language-switcher";
 
-// Import mock data directly
 import { mockUser } from "../lib/mock-data";
 
-// In Next.js 15, both params and searchParams are Promise-like objects
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function LocalePage(props: PageProps) {
-  // Await both params and searchParams to satisfy the type system
   const params = await props.params;
   
   const locale = params.locale;
   
-  // Check if the locale is supported
   if (!locales.includes(locale as Locale)) {
     notFound();
   }
@@ -57,9 +52,7 @@ export default async function LocalePage(props: PageProps) {
   );
 }
 
-// This component uses direct mock data - no fetch calls at all
 function ProfileFormContent({ locale }: { locale: Locale }) {
-  // Use mock data directly without fetching
   const user = mockUser;
   
   return (
@@ -69,7 +62,6 @@ function ProfileFormContent({ locale }: { locale: Locale }) {
   );
 }
 
-// Generate static params for all supported locales
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
