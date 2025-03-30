@@ -9,7 +9,12 @@ import { getDictionary } from "../i18n/utils";
 
 export async function getUser() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/user`, {
+    // Use relative URL instead of hardcoded localhost
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    
+    const response = await fetch(`${baseUrl}/api/user`, {
       cache: "no-store",
     });
     
@@ -56,7 +61,12 @@ export async function submitProfileForm(
   
   // If validation passes, proceed with API call
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/user`, {
+    // Use relative URL instead of hardcoded localhost
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    
+    const response = await fetch(`${baseUrl}/api/user`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
