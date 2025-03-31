@@ -55,14 +55,11 @@ React Server Actions: For form handling
 git clone https://github.com/yourusername/user-profile-editor.git
 cd user-profile-editor
 
-Install dependencies
-
+2- Install dependencies
 npm install
 
-Start the development server
-
+3-Start the development server
 npm run dev
-
 Open http://localhost:3000 in your browser
 
 
