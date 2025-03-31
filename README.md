@@ -2,7 +2,7 @@
 
 A modern, internationalized user profile form built with Next.js, featuring real-time validation, server actions, and progressive enhancement.
 
- ![Diagram](https://github.com/TRoYHD/SyncMe-Coding-Challenge-ServerlessAPIforWooCommerce/blob/main/public/A%20high%20Level%20Architecture%20Diagram.png](https://github.com/TRoYHD/alnayzak-coding-challange/blob/main/user-profile-editor/public/images/photo1.png)
+ ![Diagram](https://github.com/TRoYHD/alnayzak-coding-challange/blob/main/user-profile-editor/public/images/photo1.png)
 
 ## Features
 
@@ -17,7 +17,7 @@ A modern, internationalized user profile form built with Next.js, featuring real
 
 ## Live Demo
 
-[View Demo](https://user-profile-editor.vercel.app](https://alnayzak-coding-challange.vercel.app/en)
+[View Demo](https://alnayzak-coding-challange.vercel.app/en)
 
 ## Architecture Overview
 
